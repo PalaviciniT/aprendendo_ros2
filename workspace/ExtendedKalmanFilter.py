@@ -20,14 +20,15 @@ class EKF(Node):
         self.publisher_pose = self.create_publisher(Pose, '/pose', 10)
 
         ########## inicializando variáveis ##########
-        self.dT = 1.0
-        
-        self.x = None 
-        self.u = None 
-        self.P = None        
-        self.Q = None
-        self.z = None
-        self.R = None
+        self.dT = 1.0                                       # variacao do tempo
+        self.x = np.array([[0.0],[0.0],[0.0]])              # vetor do estado
+        self.P = np.diag([0.1**2,0.1**2,np.radians(10)**2]) # matriz de covariância da estimativa inicial
+
+        self.z = None                                       # medição em cada passo
+        self.u = None                                       # vetor de controle
+        self.Q = np.diag([0.1**2,0.1**2,np.radians(10)**2]) # covariância do ruído de processo
+        self.R = None                                       # covariância do ruído de medição
+
         #############################################
 
         self.timer = self.create_timer(self.dT,self.timer_callback)
@@ -45,7 +46,7 @@ class EKF(Node):
         self.u = np.array([[msg.twist.twist.linear.x],[msg.twist.twist.angular.z]])
 
     # Executando
-    def timer_callback(self):        
+    def timer_callback(self):     
         self.x, self.P = self.ekf_algorithm(self.x,self.P,self.u,self.z,self.Q,self.R)
 
         msg = Pose()
@@ -64,7 +65,7 @@ class EKF(Node):
         x_pred = np.array([[x[0,0] + v*np.cos(theta)*dt],[x[1,0] + v*np.sin(theta)*dt],[x[2,0] + w*dt]])
         F = np.array([[1, 0, -v*np.sin(theta)*dt], [0, 1, v*np.cos(theta)*dt], [0, 0, 1]])
         H = np.array([[1,0,0],[0,1,0]])
-        
+
         P_pred = F @ P @ F.T + Q
 
         y = z - H @ x_pred
