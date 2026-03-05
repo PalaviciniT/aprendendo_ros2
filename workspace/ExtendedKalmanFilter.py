@@ -50,7 +50,7 @@ class EKF(Node):
         self.x, self.P = self.ekf_algorithm(self.x,self.P,self.u,self.z,self.Q,self.R)
 
         msg = Pose()
-        msg.position = Point(x=self.x[0].item(), y=self.x[1].item(), z=0) 
+        msg.position = Point(x=self.x[0].item(), y=self.x[1].item(), z=0.0) 
         qx, qy, qz, qw = quaternion_from_euler(0, 0, self.x[2].item())
         msg.orientation = Quaternion(x=qx, y=qy, z=qz, w=qw)
         self.publisher_pose.publish(msg)
