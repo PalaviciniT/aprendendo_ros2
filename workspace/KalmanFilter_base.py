@@ -66,7 +66,7 @@ class KalmanFilter(Node):
         I = np.identity(2)                              # matriz identidade
 
         x_pred = A @ x + B * u
-        P_pred = A @ P + A.T + Q
+        P_pred = A @ P @ A.T + Q
         K = P_pred @ H.T @ np.linalg.inv(H @ P_pred @ H.T + R)
         x = x_pred + K @ (z - H @ x_pred)
         P = (I - K @ H) @ P_pred
